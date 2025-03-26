@@ -1,48 +1,38 @@
-'use client'; // 必须标记为客户端组件
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+// app/api/auth/login/route.js
+import { NextResponse } from 'next/server'
+import { connectMongoose } from '@/lib/dbConnect'
+import User from '@/models/User'
+import bcrypt from 'bcryptjs'
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const router = useRouter();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+export async function POST(request) {
+  try {
+    await connectMongoose()
+    const { email, password } = await request.json()
     
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        router.push('/dashboard'); // 登录成功后跳转
-      } else {
-        const error = await response.json();
-        alert(error.error);
-      }
-    } catch (err) {
-      alert('登录失败');
+    const user = await User.findOne({ email })
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      )
     }
-  };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input 
-        type="email" 
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="邮箱"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="密码"
-      />
-      <button type="submit">登录</button>
-    </form>
-  );
+    const isMatch = await bcrypt.compare(password, user.password)
+    if (!isMatch) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      )
+    }
+
+    const { password: _, ...userData } = user.toObject()
+    return NextResponse.json({ user: userData })
+
+  } catch (error) {
+    console.error('Login Error:', error)
+    return NextResponse.json(
+      { error: 'Login failed' },
+      { status: 500 }
+    )
+  }
 }

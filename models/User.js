@@ -1,38 +1,27 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
 
 const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
+  name: { type: String, required: true },
+  email: { 
+    type: String, 
+    required: true, 
     unique: true,
-    trim: true
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email']
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    match: [/\S+@\S+\.\S+/, '邮箱格式无效']
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-    select: false // 查询时默认不返回密码
-  }
-}, { timestamps: true });
+  password: { type: String, required: true }
+}, { timestamps: true })
 
-// 密码加密钩子
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+  if (!this.isModified('password')) return next()
+  
+  try {
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
+    next()
+  } catch (err) {
+    next(err)
+  }
+})
 
-// 密码验证方法
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-export default mongoose.models?.User || mongoose.model('User', userSchema);
+export default mongoose.models.User || mongoose.model('User', userSchema)
