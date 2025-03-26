@@ -10,7 +10,7 @@ const recipeSchema = new mongoose.Schema({
     required: true,
   },
   ingredients: {
-    type: [String], // Array of strings for ingredients
+    type: [String],
     required: true,
   },
   instructions: {
@@ -22,8 +22,18 @@ const recipeSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-}, { timestamps: true });
+}, { 
+  timestamps: true, // 自动添加 createdAt 和 updatedAt
+  toJSON: { virtuals: true }, // 虚拟字段转换
+  toObject: { virtuals: true }
+});
 
-const Recipe = mongoose.models.Recipe || mongoose.model('Recipe', recipeSchema);
+// 添加虚拟字段（示例）
+recipeSchema.virtual('formattedDate').get(function() {
+  return this.createdAt.toLocaleDateString('zh-CN');
+});
+
+// 更安全的模型获取方式
+const Recipe = mongoose.models?.Recipe || mongoose.model('Recipe', recipeSchema);
 
 export default Recipe;

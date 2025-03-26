@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "build": {
+      "env": {
+        "MONGO_URI": "mongodb+srv://Jane:jane980511@cluster0.ocgmb.mongodb.net/recipenest?retryWrites=true&w=majority",
+        "JWT_SECRET": "0caa233737196a0fe0d647ff4e7d547b4b601c8e392a62f5ea4db94f852137d6"
+      }
+    },
+    "routes": [
+      {
+        "src": "/api/auth/(.*)",
+        "dest": "/api/auth/$1",
+        "override": true
+      }
+    ]
+  }
