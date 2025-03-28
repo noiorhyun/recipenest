@@ -1,12 +1,13 @@
-// app/api/auth/login/route.js
 import { NextResponse } from 'next/server'
-import { connectMongoose } from '@/lib/dbConnect'
+import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
 import bcrypt from 'bcryptjs'
+import { generateToken, setAuthCookie } from '@/lib/auth'
 
 export async function POST(request) {
   try {
-    await connectMongoose()
+    await dbConnect()
+    
     const { email, password } = await request.json()
     
     const user = await User.findOne({ email })
@@ -25,11 +26,20 @@ export async function POST(request) {
       )
     }
 
+    const token = generateToken(user._id)
     const { password: _, ...userData } = user.toObject()
-    return NextResponse.json({ user: userData })
+
+    // Create response and set cookie in one operation
+    const response = NextResponse.json({
+      user: userData,
+      token,
+      userId: user._id 
+    });
+    
+    return setAuthCookie(response, token)
 
   } catch (error) {
-    console.error('Login Error:', error)
+    console.error('Login error:', error)
     return NextResponse.json(
       { error: 'Login failed' },
       { status: 500 }
