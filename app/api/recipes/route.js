@@ -22,6 +22,7 @@ export async function POST(request) {
     const newRecipe = await Recipe.create({
       ...recipeData,
       user: userId 
+    }); // 这里添加了缺失的闭合括号和分号
 
     return NextResponse.json(newRecipe, { status: 201 });
     
@@ -37,7 +38,6 @@ export async function POST(request) {
     );
   }
 }
-
 
 // get recipes
 export async function GET(request) {
