@@ -1,9 +1,16 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 
 async function getRecipes() {
   try {
     console.log('Fetching recipes...');
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const headersList = headers();
+    const host = headersList.get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+    
+    console.log('Using base URL:', baseUrl);
+    
     const res = await fetch(`${baseUrl}/api/recipes`, {
       cache: 'no-store',
       headers: {
