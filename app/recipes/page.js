@@ -1,13 +1,17 @@
 import Link from 'next/link';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 
 async function getRecipes() {
   try {
     console.log('Fetching recipes...');
     const headersList = headers();
+    const cookieStore = cookies();
     const host = headersList.get('host');
     const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
+    
+    // Get the auth token from cookies
+    const token = cookieStore.get('token');
     
     console.log('Using base URL:', baseUrl);
     
@@ -16,6 +20,7 @@ async function getRecipes() {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Authorization': token ? `Bearer ${token.value}` : '',
       },
       next: { revalidate: 0 }
     });
