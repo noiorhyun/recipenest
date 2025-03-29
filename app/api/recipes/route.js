@@ -10,7 +10,6 @@ export async function POST(request) {
     
     const userId = request.headers.get('x-user-id');
     
-    // Add this validation
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required in x-user-id header" },
@@ -22,8 +21,7 @@ export async function POST(request) {
     
     const newRecipe = await Recipe.create({
       ...recipeData,
-      user: userId // This will now be validated
-    });
+      user: userId 
 
     return NextResponse.json(newRecipe, { status: 201 });
     
@@ -34,7 +32,7 @@ export async function POST(request) {
       stack: error.stack
     });
     return NextResponse.json(
-      { error: error.message }, // Return actual error message
+      { error: error.message }, 
       { status: 500 }
     );
   }

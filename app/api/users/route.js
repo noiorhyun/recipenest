@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
+import dbConnect from '@/lib/dbConnect'
+import User from '@/models/User'
 
-// Basic template for all endpoints
-export async function GET() {
-  return NextResponse.json({ 
-    status: 'success',
-    data: null,
-    message: 'Endpoint working' 
-  })
+export async function GET(request, { params }) {
+  await dbConnect()
+  const user = await User.findById(params.id)
+    .select('-password')
+    .populate('recipes')
+    
+  return NextResponse.json(user)
 }

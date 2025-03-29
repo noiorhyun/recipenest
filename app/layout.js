@@ -1,19 +1,19 @@
-import Link from 'next/link';
-import './globals.css';
+import './globals.css'
+import Navbar from '@/components/Navbar'
+
+export const metadata = {
+  title: 'RecipeNest',
+  description: 'Share and discover recipes',
+}
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <nav style={{ padding: '1rem', background: '#f0f0f0' }}>
-          <Link href="/" style={{ marginRight: '1rem' }}>Home</Link>
-          <Link href="/recipes" style={{ marginRight: '1rem' }}>Recipes</Link>
-          <Link href="/bookmarks" style={{ marginRight: '1rem' }}>Bookmarks</Link>
-          <Link href="/profile">Profile</Link>
-        </nav>
-        <div style={{ padding: '1rem' }}>
+        <Navbar />
+        <main className="container mx-auto px-4 py-8">
           {children}
-        </div>
+        </main>
       </body>
     </html>
   )

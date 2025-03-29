@@ -1,23 +1,8 @@
-// models/Bookmark.js
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
-const BookmarkSchema = new mongoose.Schema({
-  recipe: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Recipe',
-    required: true,
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+const bookmarkSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  recipe: { type: mongoose.Schema.Types.ObjectId, ref: 'Recipe', required: true }
+}, { timestamps: true })
 
-const Bookmark = mongoose.models.Bookmark || mongoose.model('Bookmark', BookmarkSchema);
-
-export default Bookmark;
+export default mongoose.models.Bookmark || mongoose.model('Bookmark', bookmarkSchema)
