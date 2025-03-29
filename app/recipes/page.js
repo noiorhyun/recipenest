@@ -15,15 +15,31 @@ async function getRecipes() {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
+      next: { revalidate: 0 }
     });
     
     console.log('Response status:', res.status);
     
     if (!res.ok) {
-      const errorData = await res.json();
-      console.error('Error response:', errorData);
-      throw new Error(errorData.error || 'Failed to fetch recipes');
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await res.json();
+        console.error('Error response:', errorData);
+        throw new Error(errorData.error || 'Failed to fetch recipes');
+      } else {
+        const text = await res.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Server returned non-JSON response');
+      }
+    }
+    
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await res.text();
+      console.error('Non-JSON response:', text);
+      throw new Error('Server returned non-JSON response');
     }
     
     const data = await res.json();
